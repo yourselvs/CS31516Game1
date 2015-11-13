@@ -1,4 +1,37 @@
 public class Item {
+	class Gold extends Item{
+		private int quantity;
+
+		/**
+		 * Creates a set of gold pieces
+		 * 
+		 * @param quantity		the number of gold pieces in the set
+		 */
+		public Gold(int quantity) {
+			super("Gold piece", "A coin of minted gold.", 0, 0, 0);
+			
+		}
+
+		/**
+		 * @return		returns the number of gold pieces in the set
+		 */
+		public int getQuantity(){return quantity;}
+		
+		/**
+		 * Adds gold pieces to the set 
+		 * 
+		 * @param value		the number of gold pieces to add to the set
+		 */
+		public void addGold(int value){quantity += value;}
+		
+		/**
+		 * Removes gold pieces from the set 
+		 * 
+		 * @param value		the number of gold pieces to remove from the set
+		 */
+		public void removeGold(int value){quantity -= value;}
+	}
+	
 	private String name;
 	private String description;
 	private int weight;
@@ -12,7 +45,7 @@ public class Item {
 	 * @param name			the name of the item, should be pre-formatted
 	 * @param description	a short description of the item to appear alongside it
 	 * @param weight		the weight of the item
-	 * @param speed			the speed of the item when using it , where zero is instant and higher numbers take longer
+	 * @param speed			the speed of the item when using it , where zero is fastest and higher numbers take longer
 	 * @param durability	how many hits the item can take, where zero is infinite
 	 */
 	public Item(String name, String description, int weight, int speed, int durability) {
