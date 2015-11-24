@@ -26,7 +26,13 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	public static Random rand = new Random(System.currentTimeMillis());
     static JTextArea displayArea;
     JTextField typingArea;
-    static final String newline = System.getProperty("line.separator");
+    static final String newLine = System.getProperty("line.separator");
+    static boolean keyPressed = false;
+    
+    private static String moveNorth = "w";
+    private static String moveWest = "a";
+    private static String moveEast = "d";
+    private static String moveSouth = "s";
     
     public static void main(String[] args) {
     	try {
@@ -76,7 +82,9 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
         getContentPane().add(typingArea, BorderLayout.PAGE_START);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
         
-        displayArea.setText("Use WASD to move around.");
+        
+        viewMapWindow(map.getMap(), xCoord, yCoord);
+        viewControls();
     }
     
     public Program(String name) {
@@ -85,42 +93,46 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
     
     
     public void keyReleased(KeyEvent e) {
+    	keyPressed = false;
     	typingArea.setText("");
     }
     public void keyPressed(KeyEvent e) {
-    	typingArea.setText("");
-    	displayInfo(e.getKeyChar(), "Text: ");
+    	if(!keyPressed){
+    		keyPressed = true;
+    		typingArea.setText("");
+    		displayInfo(e.getKeyChar());
+    	}
     }
     public void keyTyped(KeyEvent e) {}
     public void actionPerformed(ActionEvent e) {}
     
-    private void displayInfo(char e, String keyStatus){
+    private void displayInfo(char e){
         displayArea.setText("");
         String input = (e + "").toLowerCase();
         boolean proceed = true;
         
-        if(input.equals("w")){
+        if(input.equals(moveNorth)){
 			if(xCoord == 1){
 				proceed = false;
 			}
 			else
 				xCoord--;
 		}
-		else if(input.equals("a")){
+		else if(input.equals(moveWest)){
 			if(yCoord == 1){
 				proceed = false;
 			}
 			else
 				yCoord--;
 		}
-		else if(input.equals("s")){
+		else if(input.equals(moveSouth)){
 			if(xCoord == map.getMap().length - 1){
 				proceed = false;
 			}
 			else
 				xCoord++;
 		}
-		else if(input.equals("d")){
+		else if(input.equals(moveEast)){
 			if(yCoord == map.getMap().length - 1){
 				proceed = false;
 			}
@@ -131,7 +143,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 		viewMapWindow(map.getMap(), xCoord, yCoord);
 		
 		if(!proceed)
-	        	displayArea.append(newline + "You can't go that way");
+	        	displayArea.append(newLine + "You can't go that way");
 		
         displayArea.setCaretPosition(displayArea.getDocument().getLength());
     }
@@ -140,7 +152,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 		for(int i = 0; i < map.length; i++){
 			for(int j = 0; j < map[0].length; j++)
 				displayArea.append(map[i][j].getValue() + " ");
-			displayArea.append(newline);
+			displayArea.append(newLine);
 		}
 	}
 	
@@ -175,7 +187,14 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 		for(ArrayList<String> line : window){
 			for(String s : line)
 				displayArea.append(s + " ");
-			displayArea.append(newline);
+			displayArea.append(newLine);
 		}
+	}
+	
+	public static void viewControls(){
+		displayArea.append(newLine + "Use \"" + moveNorth + "\" to move north."
+				+ newLine + "Use \"" + moveSouth + "\" to move south."
+				+ newLine + "Use \"" + moveEast + "\" to move east."
+				+ newLine + "Use \"" + moveWest + "\" to move west.");
 	}
 }
