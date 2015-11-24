@@ -16,5 +16,5 @@ public class MeleeItem extends Item{
 		this.damageMulti = damageMulti;
 	}
 	
-	public int getSharpness(){return damageMulti;}
+	public int getDamageMulti(){return damageMulti;}
 }

@@ -1,28 +1,9 @@
 import java.util.Random;
 
 
-public class Map {
-	
-	private class Chunk {
-		private int value;
-		
-		/**
-		 * Creates a chunk with a specific value.
-		 * 
-		 * @param value		the value of the chunk
-		 */
-		public Chunk(int value){
-			this.value = value;
-		}
-		
-		/**
-		 * @return		returns the value of the chunk
-		 */
-		public int getValue(){return value;}
-	}
-	
+public class Map {	
 	private static Chunk[][] chunks;
-	private static int[][] map;
+	private static Point[][] map;
 	
 	private int numChunks;
 	private int chunkSize;
@@ -43,7 +24,7 @@ public class Map {
 		this.numChunks = numChunks;
 		this.chunkSize = chunkSize;
 		chunks = new Chunk[numChunks][numChunks];
-		map = new int[numChunks * chunkSize][numChunks * chunkSize];
+		map = new Point[numChunks * chunkSize][numChunks * chunkSize];
 		
 		this.genMap();
 	}
@@ -62,7 +43,7 @@ public class Map {
 		this.numChunks = numChunks;
 		this.chunkSize = chunkSize;
 		chunks = new Chunk[numChunks][numChunks];
-		map = new int[numChunks * chunkSize][numChunks * chunkSize];
+		map = new Point[numChunks * chunkSize][numChunks * chunkSize];
 		
 		
 		this.genMap();
@@ -82,7 +63,7 @@ public class Map {
 	/**
 	 * @return		returns the map in an int[][] array
 	 */
-	public int[][] getMap(){return map;}
+	public Point[][] getMap(){return map;}
 	
 	private void genChunks(){
 		for(int xChunk = 0; xChunk < numChunks; xChunk++){
@@ -92,14 +73,13 @@ public class Map {
 				
 				for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
 					for(int y = yChunk * chunkSize; y < (yChunk * chunkSize) + chunkSize; y++){
-						System.out.println(x + "," + y);
-						map[x][y] = value;
+						map[x][y] = new Point(value, getRandomDescription(value), getRandomItems(value));
 					}
 				}
 			}
 		}
 	}
-	
+
 	private void genEdges(){
 		for(int xChunk = 0; xChunk < chunks.length; xChunk++){
 			for(int yChunk = 0; yChunk < chunks[0].length; yChunk++){
@@ -107,31 +87,41 @@ public class Map {
 					int x = xChunk * chunkSize;
 					for(int y = yChunk * chunkSize; y < (yChunk * chunkSize) + chunkSize; y++){
 						if(rand.nextInt() % edgeChance == 0)
-							map[x][y] = chunks[xChunk - 1][yChunk].getValue();
+							map[x][y].setValue(chunks[xChunk - 1][yChunk].getValue());
 					}
 				}
 				else if(xChunk != numChunks - 1 && chunks[xChunk + 1][yChunk].getValue() != chunks[xChunk][yChunk].getValue()){
 					int x = (xChunk * chunkSize) + chunkSize - 1;
 					for(int y = yChunk * chunkSize; y < (yChunk * chunkSize) + chunkSize; y++){
 						if(rand.nextInt() % edgeChance == 0)
-							map[x][y] = chunks[xChunk + 1][yChunk].getValue();
+							map[x][y].setValue(chunks[xChunk + 1][yChunk].getValue());
 					}
 				}
 				else if(yChunk != 0 && chunks[xChunk][yChunk - 1].getValue() != chunks[xChunk][yChunk].getValue()){
 					int y = yChunk * chunkSize;
 					for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
 						if(rand.nextInt() % edgeChance == 0)
-							map[x][y] = chunks[xChunk][yChunk - 1].getValue();
+							map[x][y].setValue(chunks[xChunk][yChunk - 1].getValue());
 					}
 				}
 				else if(yChunk != numChunks - 1 && chunks[xChunk][yChunk + 1].getValue() != chunks[xChunk][yChunk].getValue()){ 
 					int y = (yChunk * chunkSize) + chunkSize - 1;
 					for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
 						if(rand.nextInt() % edgeChance == 0)
-							map[x][y] = chunks[xChunk][yChunk + 1].getValue();
+							map[x][y].setValue(chunks[xChunk][yChunk + 1].getValue());
 					}
 				}
 			}
 		}
+	}
+	
+	private String getRandomDescription(int value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private Item[] getRandomItems(int value) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
