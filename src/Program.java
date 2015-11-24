@@ -75,6 +75,8 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
         
         getContentPane().add(typingArea, BorderLayout.PAGE_START);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
+        
+        displayArea.setText("Use WASD to move around.");
     }
     
     public Program(String name) {
