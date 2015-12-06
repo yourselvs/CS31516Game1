@@ -1,18 +1,24 @@
+import java.util.ArrayList;
+
 public class Point {
 	private int value;
 	private String description;
 	private String hiddenDescription;
-	private Item[] items;
+	private ArrayList<Item> items;
+	private boolean searched;
 	
 	/**
 	 * Point class contains all the information contained within a single point.
 	 * 
-	 * @param value			the initial value of the point
-	 * @param description	the description of the point, should be pre-formatted
+	 * @param value					the initial value of the point
+	 * @param description			the description of the point, should be pre-formatted
+	 * @param hiddenDescription 	the hidden description of the point, found upon searching the point, should be pre-formatted
 	 */
-	public Point(int value, String description, Item[] items){
+	public Point(int value, String description, String hiddenDescription, ArrayList<Item> items){
 		this.value = value;
 		this.description = description;
+		this.hiddenDescription = hiddenDescription;
+		this.items = items;
 	}
 	
 	/**
@@ -28,12 +34,12 @@ public class Point {
 	/**
 	 * @return		returns the point's hidden description
 	 */
-	public String getHiddenDescription(){return hiddenDescription;}
+	public void revealHiddenDescription(){if(!searched){searched = true; description = description + " " + hiddenDescription;}}
 	
 	/**
 	 * @return		returns the point's items
 	 */
-	public Item[] getItems(){return items;}
+	public ArrayList<Item> getItems(){return items;}
 	
 	/**
 	 * Sets the value of a point. The value determines
@@ -61,10 +67,12 @@ public class Point {
 	public void setHiddenDescription(String description){this.hiddenDescription = description;}
 	
 	/**
-	 * Sets the items of a point. The items are what is
+	 * Adds an item to a point. The items are what is
 	 * found in a point after it has been searched.
 	 *  
 	 * @param items		the items to be set in the point
 	 */
-	public void setItems(Item[] items){this.items = items;}
+	public void addItem(ArrayList<Item> items){this.items = items;}
+	
+	public void clearItems(){this.items = new ArrayList<Item>();}
 }

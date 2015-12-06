@@ -5,10 +5,10 @@ public class Map {
 	private static Chunk[][] chunks;
 	private static Point[][] map;
 	
-	private int numChunks;
-	private int chunkSize;
-	private int edgeChance = 2;
-	private int numBiomes = 5;
+	public int numChunks;
+	public int chunkSize;
+	public int edgeChance = 2;
+	public static int numBiomes = 5;
 	
 	private static Random rand = new Random(System.currentTimeMillis());
 
@@ -65,6 +65,8 @@ public class Map {
 	 */
 	public Point[][] getMap(){return map;}
 	
+	public void revealPoint(int x, int y){map[x][y].revealHiddenDescription();}
+	
 	private void genChunks(){
 		for(int xChunk = 0; xChunk < numChunks; xChunk++){
 			for(int yChunk = 0; yChunk < numChunks; yChunk++){
@@ -73,7 +75,7 @@ public class Map {
 				
 				for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
 					for(int y = yChunk * chunkSize; y < (yChunk * chunkSize) + chunkSize; y++){
-						map[x][y] = new Point(value, getRandomDescription(value), getRandomItems(value));
+						map[x][y] = new Point(value, Program.getRandomPointDescription(value), Program.getRandomPointHiddenDescription(value), Program.getRandomPointItems(value));
 					}
 				}
 			}
@@ -113,15 +115,5 @@ public class Map {
 				}
 			}
 		}
-	}
-	
-	private String getRandomDescription(int value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	private Item[] getRandomItems(int value) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
