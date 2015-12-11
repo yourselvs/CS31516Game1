@@ -21,12 +21,14 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	private static int xCoord;
 	private static int yCoord;
 	private static Map map;
-	private static final int numChunks = 3;
-    private static final int chunkSize = 5;
-    private static final int hiddenDescriptionChance = 100;
+	static final int numChunks = 3;
+    static final int chunkSize = 5;
+    static final int numBiomes = 10;
+    static final int hiddenDescriptionChance = 100;
     
     // Game variables
-    private static final ArrayList<Item> items = new ArrayList<Item>();
+    public enum Biome{FOREST, MOUNTAIN, PLAINS, TUNDRA, DESERT, JUNGLE, BEACH, SWAMP, PRAIRIE, OCEAN};
+    //private static final ArrayList<Item> items = new ArrayList<Item>();
     private static final ArrayList<ArrayList<String>> chunkDescription = new ArrayList<ArrayList<String>>();
     private static final ArrayList<ArrayList<String>> chunkHiddenDescription = new ArrayList<ArrayList<String>>();
     
@@ -80,7 +82,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	}
     
     private static void readPointHiddenDescriptions() {
-    	for(int i = 0; i < Map.numBiomes; i++){
+    	for(int i = 0; i < numBiomes; i++){
     		ArrayList<String> descriptions = new ArrayList<String>();
     		descriptions.add("hidden");
     		chunkHiddenDescription.add(descriptions);
@@ -88,7 +90,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	}
 
 	private static void readPointDescriptions() {
-		for(int i = 0; i < Map.numBiomes; i++){
+		for(int i = 0; i < numBiomes; i++){
     		ArrayList<String> descriptions = new ArrayList<String>();
     		descriptions.add("1");
     		descriptions.add("2");
@@ -216,9 +218,10 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 			else if(e.getKeyChar() == '1')
         		map.revealPoint(xCoord, yCoord);
 			else if(e.getKeyChar() == '2'){
-				gameStatus = Status.INVENTORY_MENU;
-				display.setText("");
-				viewInventory();
+				// TODO View inventory
+			//	gameStatus = Status.INVENTORY_MENU;
+			//	display.setText("");
+			//	viewInventory();
 			}
 			else if(e.getKeyChar() == '3'){}
 				// TODO View quests
@@ -333,9 +336,8 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	}
 	
 	public static void viewInventory(){
-		for(int i = inventoryPage * 9 + 1; i < (inventoryPage + 1) * 9 + 1; i++){
-			
-		}
+		//for(int i = inventoryPage * 9 + 1; i < (inventoryPage + 1) * 9 + 1; i++){
+		//}
 	}
 
 	public static ArrayList<Item> getRandomPointItems(int numItem) {
