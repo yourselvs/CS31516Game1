@@ -8,7 +8,6 @@ public class Map {
 	public int numChunks;
 	public int chunkSize;
 	public int edgeChance = 2;
-	public static int numBiomes = 5;
 	
 	private static Random rand = new Random(System.currentTimeMillis());
 
@@ -70,7 +69,7 @@ public class Map {
 	private void genChunks(){
 		for(int xChunk = 0; xChunk < numChunks; xChunk++){
 			for(int yChunk = 0; yChunk < numChunks; yChunk++){
-				int value = rand.nextInt(numBiomes);
+				int value = rand.nextInt(Program.numBiomes);
 				chunks[xChunk][yChunk] = new Chunk(value);
 				
 				for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
