@@ -1,5 +1,6 @@
 public class MeleeItem extends Item{
 	private int damageMulti;
+	private int damageBonus;
 	
 	/**
 	 * 
@@ -11,10 +12,12 @@ public class MeleeItem extends Item{
 	 * @param damageMulti	the damage multiplier for the item
 	 */
 	
-	public MeleeItem(String name, String description, int weight, int speed, int durability, int damageMulti){
+	public MeleeItem(String name, String description, int weight, int speed, int durability, int damageMulti, int damageBonus){
 		super(name, description, weight, speed, durability);
 		this.damageMulti = damageMulti;
+		this.damageBonus = damageBonus;
 	}
 	
 	public int getDamageMulti(){return damageMulti;}
+	public int getDamageBonus(){return damageBonus;}
 }
