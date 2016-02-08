@@ -4,6 +4,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -27,10 +33,10 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
     static final int hiddenDescriptionChance = 100;
     
     // Game variables
-    public enum Biome{FOREST, MOUNTAIN, PLAINS, TUNDRA, DESERT, JUNGLE, BEACH, SWAMP, PRAIRIE, OCEAN};
-    //private static final ArrayList<Item> items = new ArrayList<Item>();
-    private static final ArrayList<ArrayList<String>> chunkDescription = new ArrayList<ArrayList<String>>();
-    private static final ArrayList<ArrayList<String>> chunkHiddenDescription = new ArrayList<ArrayList<String>>();
+    private static ArrayList<Biome> biomes = new ArrayList<Biome>();
+    private static ArrayList<Item> items = new ArrayList<Item>();
+    private static ArrayList<ArrayList<String>> chunkDescription = new ArrayList<ArrayList<String>>();
+    private static ArrayList<ArrayList<String>> chunkHiddenDescription = new ArrayList<ArrayList<String>>();
     
 	// Player variables
     private static Character player;
@@ -44,13 +50,13 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	public static Scanner keyboard = new Scanner(System.in);
 	public static Random rand = new Random(System.currentTimeMillis());
 	
-	// Display variables
-    static JTextArea display;
-    JTextField input;
-    static final String newLine = System.getProperty("line.separator");
-    static boolean keyPressed = false;
-    static final int width = 500;
-    static final int height = 500;
+	// Display variables	
+	private static JTextArea display;
+    private JTextField input;
+    private static final String newLine = System.getProperty("line.separator");
+    private static boolean keyPressed = false;
+    private static final int width = 500;
+    private static final int height = 500;
     
     // Control variables
     private static String moveNorth = "w";
@@ -60,7 +66,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
     private static String openActionMenu = "e";
     
     public static void main(String[] args) {
-    	
+    	/*
     	try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
@@ -69,7 +75,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
     	
     	readPointDescriptions();
     	readPointHiddenDescriptions();
-    	
+    	readBiomes();
 		
 		map = new Map(numChunks, chunkSize);
 		
@@ -79,6 +85,23 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 		createAndShowGUI();
 		
 		viewStart();
+		*/
+    	
+    	
+		File folder = new File("resources/");
+		File[] files = folder.listFiles();
+
+	    for (int i = 0; i < files.length; i++) {
+	    	String extension = "";
+
+	    	int j = files[i].getPath().lastIndexOf('.');
+	    	if (j > 0) {
+	    	    extension = files[i].getPath().substring(j+1);
+	    	}
+	    	
+	    	if(extension.equalsIgnoreCase("biome"))
+	        System.out.println("File " + files[i].getName());
+	    }
 	}
     
     private static void readPointHiddenDescriptions() {
@@ -90,19 +113,51 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	}
 
 	private static void readPointDescriptions() {
-		for(int i = 0; i < numBiomes; i++){
-    		ArrayList<String> descriptions = new ArrayList<String>();
-    		descriptions.add("1");
-    		descriptions.add("2");
-    		descriptions.add("3");
-    		descriptions.add("4");
-    		descriptions.add("5");
-    		descriptions.add("6");
-    		descriptions.add("7");
-    		descriptions.add("8");
-    		descriptions.add("9");
-    		chunkDescription.add(descriptions);
-    	}
+		
+	}
+	
+	private static void readBiomes() {
+		/*
+		ArrayList<String> description = new ArrayList<String>();
+		description.add("temp");
+		biomes.add(new Biome("forest", description));
+		biomes.add(new Biome("mountain", description));
+		biomes.add(new Biome("plains", description));
+		biomes.add(new Biome("tundra", description));
+		biomes.add(new Biome("desert", description));
+		biomes.add(new Biome("jungle", description));
+		biomes.add(new Biome("beach", description));
+		biomes.add(new Biome("swamp", description));
+		biomes.add(new Biome("prairie", description));
+		biomes.add(new Biome("ocean", description));
+		*/
+		File folder = new File("resources/");
+		File[] files = folder.listFiles();
+
+	    for (int i = 0; i < files.length; i++) {
+	    	String extension = "";
+
+	    	int j = files[i].getPath().lastIndexOf('.');
+	    	if (j > 0) {
+	    	    extension = files[i].getPath().substring(j+1);
+	    	}
+	    	
+	    	if(extension.equalsIgnoreCase("biome")){
+	    		BufferedReader reader = null;
+	    		ArrayList<String>descriptions = new ArrayList<String>();
+	    		try {
+	    			reader = new BufferedReader(new FileReader(files[i]));
+	    			String description;
+	    			while(!(description = reader.readLine()).equals(""));
+	    				descriptions.add(description);
+	    		} 
+	    		catch (FileNotFoundException e) {e.printStackTrace();} 
+	    		catch (IOException e) {e.printStackTrace();}
+	    	}
+	    }
+		    
+		
+		
 	}
 
 	/**
@@ -340,7 +395,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 		//}
 	}
 
-	public static ArrayList<Item> getRandomPointItems(int numItem) {
+	public static ArrayList<Item> getPointItems(int numItem) {
 		ArrayList<Item> selectItems = new ArrayList<Item>();
 		for(int i = 0; i < numItem; i++){
 			//selectItems.add(items.get(rand.nextInt(items.size())));
@@ -348,12 +403,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 		return selectItems;
 	}
 
-	public static String getRandomPointDescription(int chunk) {
-		int descriptionNum = rand.nextInt(chunkDescription.get(chunk).size());
-		return chunkDescription.get(chunk).get(descriptionNum);
-	}
-	
-	public static String getRandomPointHiddenDescription(int chunk) {
+	public static String getPointHiddenDescription(int chunk) {
 		if(rand.nextInt(100) < hiddenDescriptionChance)
 			return chunkHiddenDescription.get(chunk).get(rand.nextInt(chunkHiddenDescription.get(chunk).size()));
 		return "";
