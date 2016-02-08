@@ -74,7 +74,7 @@ public class Map {
 				
 				for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
 					for(int y = yChunk * chunkSize; y < (yChunk * chunkSize) + chunkSize; y++){
-						map[x][y] = new Point(value, Program.getRandomPointDescription(value), Program.getRandomPointHiddenDescription(value), Program.getRandomPointItems(value));
+						map[x][y] = new Point(value, "test", Program.getPointHiddenDescription(value), Program.getPointItems(value));
 					}
 				}
 			}
