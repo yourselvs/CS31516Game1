@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Point {
-	private int value;
+	private char symbol;
 	private String description;
 	private String hiddenDescription;
 	private ArrayList<Item> items;
@@ -10,12 +10,12 @@ public class Point {
 	/**
 	 * Point class contains all the information contained within a single point.
 	 * 
-	 * @param value					the initial value of the point
+	 * @param c				the visual representation of the point
 	 * @param description			the description of the point, should be pre-formatted
 	 * @param hiddenDescription 	the hidden description of the point, found upon searching the point, should be pre-formatted
 	 */
-	public Point(int value, String description, String hiddenDescription, ArrayList<Item> items){
-		this.value = value;
+	public Point(char c, String description, String hiddenDescription, ArrayList<Item> items){
+		this.symbol = c;
 		this.description = description;
 		this.hiddenDescription = hiddenDescription;
 		this.items = items;
@@ -24,7 +24,7 @@ public class Point {
 	/**
 	 * @return		returns the point's value
 	 */
-	public int getValue(){return value;}
+	public char getSymbol(){return symbol;}
 	
 	/**
 	 * @return		returns the point's description
@@ -47,7 +47,7 @@ public class Point {
 	 * 
 	 * @param value		the value to be set
 	 */
-	public void setValue(int value){this.value = value;}
+	public void setSymbol(char symbol){this.symbol = symbol;}
 	
 	/**
 	 * Sets the description of a point. The description is
