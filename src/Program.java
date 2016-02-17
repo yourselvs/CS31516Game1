@@ -5,38 +5,39 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @SuppressWarnings("serial")
 public class Program extends JFrame	implements KeyListener,	ActionListener{
 	// Map variables
 	private static int xCoord;
 	private static int yCoord;
-	private static Map map;
+	private static GameMap map;
 	static final int numChunks = 3;
     static final int chunkSize = 5;
-    static final int numBiomes = 10;
-    static final int hiddenDescriptionChance = 100;
+    static final int hiddenDescriptionChance = 20;
     
     // Game variables
-    private static ArrayList<Biome> biomes = new ArrayList<Biome>();
-    private static ArrayList<Item> items = new ArrayList<Item>();
-    private static ArrayList<ArrayList<String>> chunkDescription = new ArrayList<ArrayList<String>>();
-    private static ArrayList<ArrayList<String>> chunkHiddenDescription = new ArrayList<ArrayList<String>>();
+    private static List<Biome> biomes = null;
+    private static List<Item> items = new ArrayList<Item>();
     
 	// Player variables
     private static Character player;
@@ -49,10 +50,21 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	// General variables
 	public static Scanner keyboard = new Scanner(System.in);
 	public static Random rand = new Random(System.currentTimeMillis());
+	public static Gson gson = new Gson();
+	
+	// File variables
+	public static int filesRead = 0;
+	public static int biomesRead = 0;
+	public static int itemsRead = 0;
+	public static File folder;
+	public static File biomeFile;
+	public static File itemFile;
+	public static final String folderPath = "res/";
+	public static final String biomePath = "biomes.json";
+	public static final String itemPath = "items.json";
 	
 	// Display variables	
 	private static JTextArea display;
-    private JTextField input;
     private static final String newLine = System.getProperty("line.separator");
     private static boolean keyPressed = false;
     private static final int width = 500;
@@ -66,99 +78,95 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
     private static String openActionMenu = "e";
     
     public static void main(String[] args) {
-    	/*
+    	
     	try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
     	
-    	readPointDescriptions();
-    	readPointHiddenDescriptions();
-    	readBiomes();
-		
-		map = new Map(numChunks, chunkSize);
-		
+    	initFiles();
+    	readFiles();
+
+		map = new GameMap(numChunks, chunkSize);
+
 		xCoord = map.getMap().length / 2;
     	yCoord = map.getMap().length / 2;
 		
 		createAndShowGUI();
-		
 		viewStart();
-		*/
+		}
+    
+    public static void initFiles() {
+    	folder = new File(folderPath);
+		if(!folder.exists()){
+			if(folder.mkdir())
+				System.out.println("File created.");
+			else
+				System.out.println("Failed to create file folder.");
+		}
     	
-    	
-		File folder = new File("resources/");
+    	biomeFile = new File(folderPath + biomePath);
+    	itemFile = new File(folderPath + itemPath);
+    	try {
+    		if(!biomeFile.exists()){
+    			if(biomeFile.createNewFile())
+    				System.out.println("File created.");
+    			else
+    				System.out.println("Failed to create folder: " + folderPath);
+    		}
+    		if(!itemFile.exists()){
+				if(itemFile.createNewFile())
+					System.out.println("File created: " + folderPath + biomePath);
+				else
+					System.out.println("Failed to create file: " + folderPath + itemPath);
+    		}
+		} catch (IOException e) {e.printStackTrace();}
+    }
+    
+    public static void readFiles() {
+		File folder = new File(folderPath);
 		File[] files = folder.listFiles();
 
 	    for (int i = 0; i < files.length; i++) {
-	    	String extension = "";
+	    	String filename = "";
 
 	    	int j = files[i].getPath().lastIndexOf('.');
-	    	if (j > 0) {
-	    	    extension = files[i].getPath().substring(j+1);
-	    	}
+	    	int k = files[i].getPath().lastIndexOf('\\');
+	    	if(k > 0)
+	    		filename = files[i].getPath().substring(k + 1, j);
 	    	
-	    	if(extension.equalsIgnoreCase("biome"))
-	        System.out.println("File " + files[i].getName());
+	    	String json = "";
+	    	try {
+	    		BufferedReader br = new BufferedReader(new FileReader(files[i]));
+		    	json = br.readLine();
+			} catch (IOException e) {e.printStackTrace();}
+	    	
+	    	if(filename.equals("biomes")){
+	    		biomes = gson.fromJson(json, new TypeToken<List<Biome>>(){}.getType());
+	    	}
+	    	else if(filename.equals("items")){
+	    		items = gson.fromJson(json, new TypeToken<List<Item>>(){}.getType());
+	    	}
+	    	else{
+	    		return;
+	    	}
+	    	filesRead++;
 	    }
+	    System.out.println("Total files read: " + filesRead);
+	    System.out.println("Bioms read: " + biomes.size());
+	    System.out.println("Items read: " + items.size());
 	}
     
-    private static void readPointHiddenDescriptions() {
-    	for(int i = 0; i < numBiomes; i++){
-    		ArrayList<String> descriptions = new ArrayList<String>();
-    		descriptions.add("hidden");
-    		chunkHiddenDescription.add(descriptions);
-    	}
-	}
-
-	private static void readPointDescriptions() {
-		
-	}
-	
-	private static void readBiomes() {
-		/*
-		ArrayList<String> description = new ArrayList<String>();
-		description.add("temp");
-		biomes.add(new Biome("forest", description));
-		biomes.add(new Biome("mountain", description));
-		biomes.add(new Biome("plains", description));
-		biomes.add(new Biome("tundra", description));
-		biomes.add(new Biome("desert", description));
-		biomes.add(new Biome("jungle", description));
-		biomes.add(new Biome("beach", description));
-		biomes.add(new Biome("swamp", description));
-		biomes.add(new Biome("prairie", description));
-		biomes.add(new Biome("ocean", description));
-		*/
-		File folder = new File("resources/");
-		File[] files = folder.listFiles();
-
-	    for (int i = 0; i < files.length; i++) {
-	    	String extension = "";
-
-	    	int j = files[i].getPath().lastIndexOf('.');
-	    	if (j > 0) {
-	    	    extension = files[i].getPath().substring(j+1);
-	    	}
-	    	
-	    	if(extension.equalsIgnoreCase("biome")){
-	    		BufferedReader reader = null;
-	    		ArrayList<String>descriptions = new ArrayList<String>();
-	    		try {
-	    			reader = new BufferedReader(new FileReader(files[i]));
-	    			String description;
-	    			while(!(description = reader.readLine()).equals(""));
-	    				descriptions.add(description);
-	    		} 
-	    		catch (FileNotFoundException e) {e.printStackTrace();} 
-	    		catch (IOException e) {e.printStackTrace();}
-	    	}
-	    }
-		    
-		
-		
-	}
+    public static void writeFiles() {
+    	System.out.println("Writing files.");
+    	
+    	try {    	
+			BufferedWriter biomeWriter = new BufferedWriter(new FileWriter(biomeFile));
+			biomeWriter.write(gson.toJson(biomes));
+			biomeWriter.close();
+		} catch (IOException e) {e.printStackTrace();}
+    }
 
 	/**
      * Create the GUI and show it.  For thread safety,
@@ -177,17 +185,13 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
     }
     
     private void addComponents() {        
-        input = new JTextField(20);
-        input.setEditable(false);
-        input.addKeyListener(this);
-        
         display = new JTextArea();
         display.setEditable(false);
+        display.addKeyListener(this);
         
         JScrollPane scrollPane = new JScrollPane(display);
         scrollPane.setPreferredSize(new Dimension(width, height));
         
-        getContentPane().add(input, BorderLayout.BEFORE_FIRST_LINE);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
     }
     
@@ -320,7 +324,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	public static void viewMap(Point[][] map){
 		for(int i = 0; i < map.length; i++){
 			for(int j = 0; j < map[0].length; j++)
-				display.append(map[i][j].getValue() + " ");
+				display.append(map[i][j].getSymbol() + " ");
 			display.append(newLine);
 		}
 	}
@@ -348,7 +352,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 				else if(x == xCoord && y == yCoord)
 					line.add("X");
 				else
-					line.add(map[x][y].getValue() + "");
+					line.add(map[x][y].getSymbol() + "");
 			}
 			window.add(line);
 		}
@@ -395,17 +399,26 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 		//}
 	}
 
-	public static ArrayList<Item> getPointItems(int numItem) {
+	public static ArrayList<Item> getPointItems(Biome biome) {
 		ArrayList<Item> selectItems = new ArrayList<Item>();
-		for(int i = 0; i < numItem; i++){
+		//for(int i = 0; i < biome; i++){
 			//selectItems.add(items.get(rand.nextInt(items.size())));
-		}
+		//}
 		return selectItems;
 	}
-
-	public static String getPointHiddenDescription(int chunk) {
-		if(rand.nextInt(100) < hiddenDescriptionChance)
-			return chunkHiddenDescription.get(chunk).get(rand.nextInt(chunkHiddenDescription.get(chunk).size()));
-		return "";
+	
+	public static String getPointDescription(Biome biome) {
+		int random = rand.nextInt(biome.getDescriptions().size());
+		return biome.getDescriptions().get(random);
 	}
+
+	public static String getPointHiddenDescription(Biome biome) {
+		if(rand.nextInt(100) < hiddenDescriptionChance){
+			int random = rand.nextInt(biome.getHiddenDescriptions().size());
+			return biome.getHiddenDescriptions().get(random);
+		}
+		return "There is nothing special here.";
+	}
+	
+	public static Collection<Biome> getBiomes() {return biomes;}
 }
