@@ -1,17 +1,17 @@
 public class Chunk {
-	private char symbol;
+	private Biome biome;
 	
 	/**
 	 * Creates a chunk with a specific value.
 	 * 
 	 * @param value		the value of the chunk
 	 */
-	public Chunk(char c){
-		this.symbol = c;
+	public Chunk(Biome c){
+		this.biome = c;
 	}
 	
 	/**
-	 * @return		returns the value of the chunk
+	 * @return		returns the biome
 	 */
-	public char getSymbol(){return symbol;}
+	public Biome getBiome() {return biome;}
 }

@@ -1,4 +1,4 @@
-public class MeleeItem extends Item{
+public class Melee extends Item{
 	private int damageMulti;
 	private int damageBonus;
 	
@@ -10,9 +10,10 @@ public class MeleeItem extends Item{
 	 * @param speed			the speed of the item when using it , where zero is instant and higher numbers take longer
 	 * @param durability	how many hits the item can take, where zero is infinite
 	 * @param damageMulti	the damage multiplier for the item
+	 * @param damageBonus	the flat damage bonus for the item
 	 */
 	
-	public MeleeItem(String name, String description, int weight, int speed, int durability, int damageMulti, int damageBonus){
+	public Melee(String name, String description, int weight, int speed, int durability, int damageMulti, int damageBonus){
 		super(name, description, weight, speed, durability);
 		this.damageMulti = damageMulti;
 		this.damageBonus = damageBonus;

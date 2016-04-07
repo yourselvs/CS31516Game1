@@ -12,4 +12,8 @@ public class Biome {
 	public char getSymbol() {return symbol.toCharArray()[0];}
 	public ArrayList<String> getDescriptions() {return descriptions;}
 	public ArrayList<String> getHiddenDescriptions() {return hiddenDescriptions;}
+	
+	public String getDescription(){
+		return descriptions.get(GameMap.rand.nextInt(descriptions.size()));
+	}
 }

@@ -1,4 +1,4 @@
-public class ProjectileItem  extends Item{
+public class Projectile  extends Item{
 	private int range;
 	private String ammo;
 	private int magazineCount;
@@ -19,7 +19,7 @@ public class ProjectileItem  extends Item{
 	 * @param magazine		amount of ammo left in current reload
 	 * @param reloadSize	amount of ammo held in a single reload
 	 */
-	public ProjectileItem(String name, String description, int weight, int speed, int durability, int range, String ammo, int magSize){
+	public Projectile(String name, String description, int weight, int speed, int durability, int range, String ammo, int magSize){
 		super(name, description, weight, speed, durability);
 		this.range = range;
 		this.ammo = ammo;

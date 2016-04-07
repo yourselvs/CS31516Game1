@@ -1,7 +1,7 @@
 import java.util.Random;
 
 
-public class Map {	
+public class GameMap {	
 	private static Chunk[][] chunks;
 	private static Point[][] map;
 	
@@ -9,7 +9,7 @@ public class Map {
 	public int chunkSize;
 	public int edgeChance = 2;
 	
-	private static Random rand = new Random(System.currentTimeMillis());
+	public static Random rand = new Random(System.currentTimeMillis());
 
 	/**
 	 * Creates a square map with a random seed. Dimensions
@@ -19,7 +19,8 @@ public class Map {
 	 * @param numChunks		the number of chunks on each side of the map
 	 * @param chunkSize		the square dimension of each chunk
 	 */
-	public Map(int numChunks, int chunkSize){
+	public GameMap(int numChunks, int chunkSize){
+		numChunks += 2;
 		this.numChunks = numChunks;
 		this.chunkSize = chunkSize;
 		chunks = new Chunk[numChunks][numChunks];
@@ -38,7 +39,8 @@ public class Map {
 	 * @param chunkSize		the square dimension of each chunk
 	 * @param seed			the value in which to seed the random generation
 	 */
-	public Map(int numChunks, int chunkSize, int seed){
+	public GameMap(int numChunks, int chunkSize, int seed){
+		numChunks += 2;
 		this.numChunks = numChunks;
 		this.chunkSize = chunkSize;
 		chunks = new Chunk[numChunks][numChunks];
@@ -54,7 +56,6 @@ public class Map {
 	 * be generated.
 	 */
 	public void genMap(){
-		rand = new Random(rand.nextInt());
 		genChunks();
 		genEdges();
 	}
@@ -67,49 +68,80 @@ public class Map {
 	public void revealPoint(int x, int y){map[x][y].revealHiddenDescription();}
 	
 	private void genChunks(){
-		for(int xChunk = 0; xChunk < numChunks; xChunk++){
-			for(int yChunk = 0; yChunk < numChunks; yChunk++){
-				int value = rand.nextInt(Program.numBiomes);
-				chunks[xChunk][yChunk] = new Chunk(value);
+		for(int xChunk = 0; xChunk < chunks.length; xChunk++){
+			for(int yChunk = 0; yChunk < chunks[0].length; yChunk++){
+				int i = rand.nextInt(Program.getBiomes().size());
+				Biome biome = (Biome) Program.getBiomes().toArray()[i];
+				
+				
+				if(numChunks % 2 == 1){
+					if(xChunk == numChunks / 2 && yChunk == numChunks / 2){
+						while(biome.getSymbol() == Program.oceanBiome.getSymbol()){
+							i = rand.nextInt(Program.getBiomes().size());
+							biome = (Biome) Program.getBiomes().toArray()[i];
+						}
+					}
+				}
+				if(numChunks % 2 == 0){
+					if((xChunk == numChunks / 2 && yChunk == numChunks / 2) ||
+							(xChunk == (numChunks / 2) - 1 && yChunk == numChunks / 2) ||
+							(xChunk == numChunks / 2 && yChunk == (numChunks / 2) - 1) ||
+							(xChunk == (numChunks / 2) - 1 && yChunk == (numChunks / 2) - 1)){
+						while(biome.getSymbol() == Program.oceanBiome.getSymbol()){
+							i = rand.nextInt(Program.getBiomes().size());
+							biome = (Biome) Program.getBiomes().toArray()[i];
+						}
+					}
+				}
+				if(xChunk == 0 || yChunk == 0 || xChunk == numChunks - 1 || yChunk == numChunks - 1)
+					biome = Program.oceanBiome;
+				
+				chunks[xChunk][yChunk] = new Chunk(biome);
 				
 				for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
 					for(int y = yChunk * chunkSize; y < (yChunk * chunkSize) + chunkSize; y++){
-						map[x][y] = new Point(value, "test", Program.getPointHiddenDescription(value), Program.getPointItems(value));
+						map[x][y] = new Point(biome);
 					}
 				}
 			}
 		}
+		
 	}
 
 	private void genEdges(){
 		for(int xChunk = 0; xChunk < chunks.length; xChunk++){
 			for(int yChunk = 0; yChunk < chunks[0].length; yChunk++){
-				if(xChunk != 0 && chunks[xChunk-1][yChunk].getValue() != chunks[xChunk][yChunk].getValue()){
+				if(xChunk != 0 && chunks[xChunk-1][yChunk].getBiome().getSymbol() != chunks[xChunk][yChunk].getBiome().getSymbol()){
 					int x = xChunk * chunkSize;
 					for(int y = yChunk * chunkSize; y < (yChunk * chunkSize) + chunkSize; y++){
-						if(rand.nextInt() % edgeChance == 0)
-							map[x][y].setValue(chunks[xChunk - 1][yChunk].getValue());
+						if(rand.nextInt() % edgeChance == 0){
+							map[x][y].setSymbol(chunks[xChunk - 1][yChunk].getBiome().getSymbol())
+								.setDescription(chunks[xChunk - 1][yChunk].getBiome().getDescription());
+						}
 					}
 				}
-				else if(xChunk != numChunks - 1 && chunks[xChunk + 1][yChunk].getValue() != chunks[xChunk][yChunk].getValue()){
+				else if(xChunk != numChunks - 1 && chunks[xChunk + 1][yChunk].getBiome().getSymbol() != chunks[xChunk][yChunk].getBiome().getSymbol()){
 					int x = (xChunk * chunkSize) + chunkSize - 1;
 					for(int y = yChunk * chunkSize; y < (yChunk * chunkSize) + chunkSize; y++){
 						if(rand.nextInt() % edgeChance == 0)
-							map[x][y].setValue(chunks[xChunk + 1][yChunk].getValue());
+							map[x][y].setSymbol(chunks[xChunk + 1][yChunk].getBiome().getSymbol())
+								.setDescription(chunks[xChunk + 1][yChunk].getBiome().getDescription());;
 					}
 				}
-				else if(yChunk != 0 && chunks[xChunk][yChunk - 1].getValue() != chunks[xChunk][yChunk].getValue()){
+				else if(yChunk != 0 && chunks[xChunk][yChunk - 1].getBiome().getSymbol() != chunks[xChunk][yChunk].getBiome().getSymbol()){
 					int y = yChunk * chunkSize;
 					for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
 						if(rand.nextInt() % edgeChance == 0)
-							map[x][y].setValue(chunks[xChunk][yChunk - 1].getValue());
+							map[x][y].setSymbol(chunks[xChunk][yChunk - 1].getBiome().getSymbol())
+								.setDescription(chunks[xChunk][yChunk - 1].getBiome().getDescription());;
 					}
 				}
-				else if(yChunk != numChunks - 1 && chunks[xChunk][yChunk + 1].getValue() != chunks[xChunk][yChunk].getValue()){ 
+				else if(yChunk != numChunks - 1 && chunks[xChunk][yChunk + 1].getBiome().getSymbol() != chunks[xChunk][yChunk].getBiome().getSymbol()){ 
 					int y = (yChunk * chunkSize) + chunkSize - 1;
 					for(int x = xChunk * chunkSize; x < (xChunk * chunkSize) + chunkSize; x++){
 						if(rand.nextInt() % edgeChance == 0)
-							map[x][y].setValue(chunks[xChunk][yChunk + 1].getValue());
+							map[x][y].setSymbol(chunks[xChunk][yChunk + 1].getBiome().getSymbol())
+								.setDescription(chunks[xChunk][yChunk + 1].getBiome().getDescription());;
 					}
 				}
 			}

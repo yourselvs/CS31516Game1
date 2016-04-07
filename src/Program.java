@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 import javax.swing.JFrame;
@@ -31,13 +30,14 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	private static int xCoord;
 	private static int yCoord;
 	private static GameMap map;
-	static final int numChunks = 3;
+	static final int numChunks = 4;
     static final int chunkSize = 5;
     static final int hiddenDescriptionChance = 20;
+    static Biome oceanBiome;
     
     // Game variables
     private static List<Biome> biomes = null;
-    private static List<Item> items = new ArrayList<Item>();
+    private static ItemSet items;
     
 	// Player variables
     private static Character player;
@@ -49,8 +49,12 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	
 	// General variables
 	public static Scanner keyboard = new Scanner(System.in);
-	public static Random rand = new Random(System.currentTimeMillis());
 	public static Gson gson = new Gson();
+	
+	// Database variables
+	public static MongoDBStorage mongoStorage;
+	private static String username, password;
+	public static String textUri = "mongodb://" + username + ":" + password + "@ds056288.mongolab.com:56288/minecraft";
 	
 	// File variables
 	public static int filesRead = 0;
@@ -144,9 +148,13 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	    	
 	    	if(filename.equals("biomes")){
 	    		biomes = gson.fromJson(json, new TypeToken<List<Biome>>(){}.getType());
+	    		for(Biome biome : biomes){
+	    			if(biome.getName().equalsIgnoreCase("ocean"))
+	    				oceanBiome = biome;
+	    		}
 	    	}
 	    	else if(filename.equals("items")){
-	    		items = gson.fromJson(json, new TypeToken<List<Item>>(){}.getType());
+	    		items = gson.fromJson(json, new TypeToken<ItemSet>(){}.getType());
 	    	}
 	    	else{
 	    		return;
@@ -155,7 +163,7 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	    }
 	    System.out.println("Total files read: " + filesRead);
 	    System.out.println("Bioms read: " + biomes.size());
-	    System.out.println("Items read: " + items.size());
+	    //System.out.println("Items read: " + items.size());
 	}
     
     public static void writeFiles() {
@@ -214,112 +222,122 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
     
     private void displayInfo(KeyEvent e){
         if(gameStatus == Status.START){
-        	if(e.getKeyCode() == KeyEvent.VK_ENTER){
-        		display.setText("");
-        		gameStatus = Status.MAIN_MENU;
-        		viewMainMenu();
-        	}
+        	processStartEvent(e);
         }
         else if(gameStatus == Status.MAIN_MENU){
-        	if(e.getKeyChar() == '1'){
-        		gameStatus = Status.MAP;
-        		display.setText("");
-        		viewMapWindow(map.getMap(), xCoord, yCoord);
-        		viewActionMenu();
-        	}
-        	else if(e.getKeyChar() == '2'){
-        		gameStatus = Status.CONTROLS;
-        		display.setText("");
-        		viewControls();
-        	}
-        	else if(e.getKeyChar() == '3'){
-        		this.dispose();
-        	}
+        	processMainMenuEvent(e);
         }
         else if(gameStatus == Status.CONTROLS){
-        	gameStatus = Status.MAIN_MENU;
-        	display.setText("");
-        	viewMainMenu();
+        	processMainMenuReturnEvent();
         }
         else if(gameStatus == Status.MAP){
-	        String input = (e.getKeyChar() + "").toLowerCase();
-	        boolean proceed = true;
-	        
-	        
-	        if(input.equals(moveNorth)){
-				if(xCoord == 1){
-					proceed = false;
-				}
-				else
-					xCoord--;
-			}
-			else if(input.equals(moveWest)){
-				if(yCoord == 1){
-					proceed = false;
-				}
-				else
-					yCoord--;
-			}
-			else if(input.equals(moveSouth)){
-				if(xCoord == map.getMap().length - 1){
-					proceed = false;
-				}
-				else
-					xCoord++;
-			}
-			else if(input.equals(moveEast)){
-				if(yCoord == map.getMap().length - 1){
-					proceed = false;
-				}
-				else
-					yCoord++;
-			}
-			else if(e.getKeyChar() == '1')
-        		map.revealPoint(xCoord, yCoord);
-			else if(e.getKeyChar() == '2'){
-				// TODO View inventory
-			//	gameStatus = Status.INVENTORY_MENU;
-			//	display.setText("");
-			//	viewInventory();
-			}
-			else if(e.getKeyChar() == '3'){}
-				// TODO View quests
-			else if(e.getKeyChar() == '4'){}
-				// TODO View world map
-        	
-			
-	        
-	        display.setText("");
-	        viewMapWindow(map.getMap(), xCoord, yCoord);
-	        viewActionMenu();
-	        
-	        if(e.getKeyChar() == '1'){
-		        if(map.getMap()[xCoord][yCoord].getItems().size() > 0){
-	        		display.append(newLine + "Items found: ");
-	        		for(int i = 0; i < map.getMap()[xCoord][yCoord].getItems().size(); i++){
-	        			player.addItem(map.getMap()[xCoord][yCoord].getItems().get(i));
-	        			if(i == map.getMap()[xCoord][yCoord].getItems().size() - 1)
-	        				display.append(map.getMap()[xCoord][yCoord].getItems().get(i).getName() + ".");
-	        			else
-	        				display.append(map.getMap()[xCoord][yCoord].getItems().get(i).getName() + ", ");
-	        		}
-	    		}
-	    		else
-	    			display.append(newLine + "No items found.");
-	        }
-	        
-	        
-			
-			if(!proceed)
-		        	display.append(newLine + "You can't go that way");
+	        processMapEvent(e);
         }
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
-        	gameStatus = Status.MAIN_MENU;
-        	display.setText("");
-        	viewMainMenu();
+        	processMainMenuReturnEvent();
         }
         display.setCaretPosition(display.getDocument().getLength());
     }
+
+	private void processStartEvent(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_ENTER){
+			display.setText("");
+			gameStatus = Status.MAIN_MENU;
+			viewMainMenu();
+		}
+	}
+
+	private void processMainMenuEvent(KeyEvent e) {
+		if(e.getKeyChar() == '1'){
+			gameStatus = Status.MAP;
+			display.setText("");
+			viewMapWindow(map.getMap(), xCoord, yCoord);
+			viewActionMenu();
+		}
+		else if(e.getKeyChar() == '2'){
+			gameStatus = Status.CONTROLS;
+			display.setText("");
+			viewControls();
+		}
+		else if(e.getKeyChar() == '3'){
+			this.dispose();
+		}
+	}
+
+	private void processMainMenuReturnEvent() {
+		gameStatus = Status.MAIN_MENU;
+		display.setText("");
+		viewMainMenu();
+	}
+
+	private void processMapEvent(KeyEvent e) {
+		String input = (e.getKeyChar() + "").toLowerCase();
+		boolean proceed = true;
+		
+		
+		if(input.equals(moveNorth) || e.getKeyCode() == KeyEvent.VK_UP){
+			if(!(xCoord == 1 || map.getMap()[xCoord - 1][yCoord].getSymbol() == oceanBiome.getSymbol()))
+				xCoord--;
+			else
+				proceed = false;
+		}
+		else if(input.equals(moveWest) || e.getKeyCode() == KeyEvent.VK_LEFT){
+			if(!(yCoord == 1 || map.getMap()[xCoord][yCoord - 1].getSymbol() == oceanBiome.getSymbol()))
+				yCoord--;
+			else
+				proceed = false;
+		}
+		else if(input.equals(moveSouth) || e.getKeyCode() == KeyEvent.VK_DOWN){
+			if(!(xCoord == map.getMap().length - 1 || map.getMap()[xCoord + 1][yCoord].getSymbol() == oceanBiome.getSymbol()))
+				xCoord++;
+			else
+				proceed = false;
+		}
+		else if(input.equals(moveEast) || e.getKeyCode() == KeyEvent.VK_RIGHT){
+			if(!(yCoord == map.getMap().length - 1 || map.getMap()[xCoord][yCoord + 1].getSymbol() == oceanBiome.getSymbol()))
+				yCoord++;
+			else
+				proceed = false;
+		}
+		else if(e.getKeyChar() == '1')
+			map.revealPoint(xCoord, yCoord);
+		else if(e.getKeyChar() == '2'){
+			// TODO View inventory
+		//	gameStatus = Status.INVENTORY_MENU;
+		//	display.setText("");
+		//	viewInventory();
+		}
+		else if(e.getKeyChar() == '3'){}
+			// TODO View quests
+		else if(e.getKeyChar() == '4'){}
+			// TODO View world map
+		else if(e.getKeyChar() == '5'){map = new GameMap(numChunks, chunkSize);}
+		
+		
+		display.setText("");
+		viewMapWindow(map.getMap(), xCoord, yCoord);
+		viewActionMenu();
+		
+		if(e.getKeyChar() == '1'){
+		    if(map.getMap()[xCoord][yCoord].getItems().size() > 0){
+				display.append(newLine + "Items found: ");
+				for(int i = 0; i < map.getMap()[xCoord][yCoord].getItems().size(); i++){
+					player.addItem(map.getMap()[xCoord][yCoord].getItems().get(i));
+					if(i == map.getMap()[xCoord][yCoord].getItems().size() - 1)
+						display.append(map.getMap()[xCoord][yCoord].getItems().get(i).getName() + ".");
+					else
+						display.append(map.getMap()[xCoord][yCoord].getItems().get(i).getName() + ", ");
+				}
+			}
+			else
+				display.append(newLine + "No items found.");
+		}
+		
+		
+		
+		if(!proceed)
+		    	display.append(newLine + "You can't go that way");
+	}
 
 	public static void viewMap(Point[][] map){
 		for(int i = 0; i < map.length; i++){
@@ -391,7 +409,8 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 		display.append(newLine + "1) Search the area"
 				+ newLine + "2) View inventory"
 				+ newLine + "3) View quests"
-				+ newLine + "4) View worldmap");
+				+ newLine + "4) View worldmap"
+				+ newLine + "5) Reload map");
 	}
 	
 	public static void viewInventory(){
@@ -408,13 +427,13 @@ public class Program extends JFrame	implements KeyListener,	ActionListener{
 	}
 	
 	public static String getPointDescription(Biome biome) {
-		int random = rand.nextInt(biome.getDescriptions().size());
+		int random = GameMap.rand.nextInt(biome.getDescriptions().size());
 		return biome.getDescriptions().get(random);
 	}
 
 	public static String getPointHiddenDescription(Biome biome) {
-		if(rand.nextInt(100) < hiddenDescriptionChance){
-			int random = rand.nextInt(biome.getHiddenDescriptions().size());
+		if(GameMap.rand.nextInt(100) < hiddenDescriptionChance){
+			int random = GameMap.rand.nextInt(biome.getHiddenDescriptions().size());
 			return biome.getHiddenDescriptions().get(random);
 		}
 		return "There is nothing special here.";

@@ -12,8 +12,8 @@ public class Item {
 	 * @param name			the name of the item, should be pre-formatted
 	 * @param description	a short description of the item to appear alongside it
 	 * @param weight		the weight of the item
-	 * @param speed			the speed of the item when using it , where zero is fastest and higher numbers take longer
-	 * @param durability	how many hits the item can take, where zero is infinite
+	 * @param speed			the speed of the item when using it , where zero cannot be used as a weapon and higher numbers take longer
+	 * @param durability	how many hits/uses the item can take, where zero is infinite
 	 */
 	public Item(String name, String description, int weight, int speed, int durability) {
 		this.name = name;

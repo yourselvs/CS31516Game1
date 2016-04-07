@@ -14,11 +14,11 @@ public class Point {
 	 * @param description			the description of the point, should be pre-formatted
 	 * @param hiddenDescription 	the hidden description of the point, found upon searching the point, should be pre-formatted
 	 */
-	public Point(char c, String description, String hiddenDescription, ArrayList<Item> items){
-		this.symbol = c;
-		this.description = description;
-		this.hiddenDescription = hiddenDescription;
-		this.items = items;
+	public Point(Biome biome){
+		this.symbol = biome.getSymbol(); 
+		this.description = Program.getPointDescription(biome);
+		this.hiddenDescription = Program.getPointHiddenDescription(biome);
+		this.items = Program.getPointItems(biome);
 	}
 	
 	/**
@@ -34,7 +34,9 @@ public class Point {
 	/**
 	 * @return		returns the point's hidden description
 	 */
-	public void revealHiddenDescription(){if(!searched){searched = true; description = description + " " + hiddenDescription;}}
+	public String getHiddenDescription(){return hiddenDescription;}
+	
+	public Point revealHiddenDescription(){if(!searched){searched = true; description = description + " " + hiddenDescription;} return this;}
 	
 	/**
 	 * @return		returns the point's items
@@ -47,7 +49,7 @@ public class Point {
 	 * 
 	 * @param value		the value to be set
 	 */
-	public void setSymbol(char symbol){this.symbol = symbol;}
+	public Point setSymbol(char symbol){this.symbol = symbol; return this;}
 	
 	/**
 	 * Sets the description of a point. The description is
@@ -55,7 +57,7 @@ public class Point {
 	 * 
 	 * @param description	the description to be set, should be pre-formatted
 	 */
-	public void setDescription(String description){this.description = description;}
+	public Point setDescription(String description){this.description = description; return this;}
 	
 	/**
 	 * Sets the hidden description of a point. The hidden
@@ -64,7 +66,7 @@ public class Point {
 	 * 
 	 * @param description	the description to be set
 	 */
-	public void setHiddenDescription(String description){this.hiddenDescription = description;}
+	public Point setHiddenDescription(String description){this.hiddenDescription = description; return this;}
 	
 	/**
 	 * Adds an item to a point. The items are what is
@@ -72,7 +74,7 @@ public class Point {
 	 *  
 	 * @param items		the items to be set in the point
 	 */
-	public void addItem(ArrayList<Item> items){this.items = items;}
+	public Point addItem(ArrayList<Item> items){this.items = items; return this;}
 	
-	public void clearItems(){this.items = new ArrayList<Item>();}
+	public Point clearItems(){this.items = new ArrayList<Item>(); return this;}
 }
